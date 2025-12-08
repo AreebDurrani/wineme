@@ -1,0 +1,47 @@
+#!/bin/bash
+
+MY_PATH="$(realpath "$0")"
+MY_DIR="$(dirname "$MY_PATH")"
+
+# Check if the script is being run as root
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run as root (use sudo)."
+    exit 1
+fi
+
+(
+cd wine || exit 1
+git reset --hard "wine-$1" || exit 1
+)
+
+(
+cd wine-staging || exit 1
+git reset --hard "v$1" || exit 1
+python staging/patchinstall.py DESTDIR=../wine -a || exit 1
+)
+
+
+(
+cd wine || exit 1
+mkdir -pv build || exit 1
+
+(
+cd build || exit 1
+../configure --enable-archs=i386,x86_64 || exit 1
+make install "-j$(nproc)" || exit 1
+)
+)
+
+(
+cd dxvk || exit 1
+mkdir -pv "$(realpath ~)"/.cache/winetricks/dxvkmanual
+./package-release.sh release "$(realpath ~/.cache/winetricks/dxvkmanual)" || exit 1
+)
+
+(
+cd vkd3d-proton || exit 1
+mkdir -pv "$(realpath ~)"/.cache/winetricks/vkd3dmanual
+./package-release.sh release "$(realpath ~/.cache/winetricks/vkd3dmanual)" || exit 1
+)
+
+"$MY_DIR"/winetricks dxvkmanual vkd3dmanual || exit 1
