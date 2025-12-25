@@ -32,6 +32,8 @@ make install "-j$(nproc)" || exit 1
 )
 )
 
+rm -rvf "$(realpath ~)"/.cache/winetricks
+
 (
 cd dxvk || exit 1
 mkdir -pv "$(realpath ~)"/.cache/winetricks/dxvkmanual
