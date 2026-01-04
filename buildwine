@@ -1,8 +1,5 @@
 #!/bin/bash
 
-MY_PATH="$(realpath "$0")"
-MY_DIR="$(dirname "$MY_PATH")"
-
 # Check if the script is being run as root
 if [ "$EUID" -ne 0 ]; then
     echo "This script must be run as root (use sudo)."
@@ -32,18 +29,3 @@ make install "-j$(nproc)" || exit 1
 )
 )
 
-rm -rvf "$(realpath ~)"/.cache/winetricks
-
-(
-cd dxvk || exit 1
-mkdir -pv "$(realpath ~)"/.cache/winetricks/dxvkmanual
-./package-release.sh release "$(realpath ~/.cache/winetricks/dxvkmanual)" || exit 1
-)
-
-(
-cd vkd3d-proton || exit 1
-mkdir -pv "$(realpath ~)"/.cache/winetricks/vkd3dmanual
-./package-release.sh release "$(realpath ~/.cache/winetricks/vkd3dmanual)" || exit 1
-)
-
-"$MY_DIR"/winetricks dxvkmanual vkd3dmanual || exit 1
