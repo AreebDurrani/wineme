@@ -8,68 +8,81 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-#initial setup
+# Helper function to find a file recursively and extract it
+find_and_extract() {
+    local pattern="$1"
+    # Search recursively for the pattern and grab the first match
+    local file_path
+    file_path=$(find . -type f -name "$pattern" | head -n 1)
 
-tar -xvf Python-3.13.7.tar.xz || exit 1
-tar -xvf flit_core-3.12.0.tar.gz || exit 1
-tar -xvf packaging-25.0.tar.gz || exit 1
-tar -xvf wheel-0.46.1.tar.gz || exit 1
-tar -xvf setuptools-80.9.0.tar.gz || exit 1
-tar -xvf ninja-1.13.1.tar.gz || exit 1
-tar -xvf meson-1.9.1.tar.gz || exit 1
+    if [ -z "$file_path" ]; then
+        echo "Error: Could not find any archive matching '$pattern' recursively."
+        exit 1
+    fi
 
-#Python-3.13.7
+    echo "Extracting: $file_path"
+    tar -xvf "$file_path" || exit 1
+}
 
+# Initial setup - Find and extract all tarballs recursively
+find_and_extract "Python-*.tar.xz"
+find_and_extract "flit_core-*.tar.gz"
+find_and_extract "packaging-*.tar.gz"
+find_and_extract "wheel-*.tar.gz"
+find_and_extract "setuptools-*.tar.gz"
+find_and_extract "ninja-*.tar.gz"
+find_and_extract "meson-*.tar.gz"
+
+# Python
 (
-    cd Python-3.13.7 || exit 1
+    cd Python-*/ || exit 1
     ./configure --enable-optimizations
     make -j"$cores"
     make -j"$cores" install
 )
 
-#flit_core-3.12.0
+# flit_core
 (
-    cd flit_core-3.12.0 || exit 1
+    cd flit_core-*/ || exit 1
     pip3 wheel -w dist --no-cache-dir --no-build-isolation --no-deps "$PWD"
     pip3 install --no-index --find-links dist flit_core
 )
 
-#packaging-25.0
+# packaging
 (
-    cd packaging-25.0 || exit 1
+    cd packaging-*/ || exit 1
     pip3 wheel -w dist --no-cache-dir --no-build-isolation --no-deps "$PWD"
     pip3 install --no-index --find-links dist packaging
 )
 
-#wheel-0.46.1
+# wheel
 (
-    cd wheel-0.46.1 || exit 1
+    cd wheel-*/ || exit 1
     pip3 wheel -w dist --no-cache-dir --no-build-isolation --no-deps "$PWD"
     pip3 install --no-index --find-links dist wheel
 )
 
-#setuptools-80.9.0
+# setuptools
 (
-    cd setuptools-80.9.0 || exit 1
+    cd setuptools-*/ || exit 1
     pip3 wheel -w dist --no-cache-dir --no-build-isolation --no-deps "$PWD"
     pip3 install --no-index --find-links dist setuptools
 )
 
-#ninja-1.13.1
+# ninja
 (
-    cd ninja-1.13.1 || exit 1
+    cd ninja-*/ || exit 1
     python3 configure.py --bootstrap --verbose
     install -vm755 ninja /usr/local/bin/
     install -vDm644 misc/bash-completion /usr/local/share/bash-completion/completions/ninja
     install -vDm644 misc/zsh-completion  /usr/local/share/zsh/site-functions/_ninja
 )
 
-#meson-1.9.1
+# meson
 (
-    cd meson-1.9.1 || exit 1
+    cd meson-*/ || exit 1
     pip3 wheel -w dist --no-cache-dir --no-build-isolation --no-deps "$PWD"
     pip3 install --no-index --find-links dist meson
     install -vDm644 data/shell-completions/bash/meson /usr/local/share/bash-completion/completions/meson
     install -vDm644 data/shell-completions/zsh/_meson /usr/local/share/zsh/site-functions/_meson
-
 )
