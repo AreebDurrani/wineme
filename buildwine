@@ -24,7 +24,7 @@ mkdir -pv build || exit 1
 
 (
 cd build || exit 1
-../configure --enable-archs=i386,x86_64 || exit 1
+../configure --enable-archs=i386,x86_64 --without-opencl || exit 1
 make install "-j$(nproc)" || exit 1
 )
 )
