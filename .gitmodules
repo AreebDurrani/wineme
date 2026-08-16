@@ -1,0 +1,12 @@
+[submodule "wine"]
+	path = wine
+	url = https://gitlab.winehq.org/wine/wine.git
+[submodule "wine-staging"]
+	path = wine-staging
+	url = https://gitlab.winehq.org/wine/wine-staging.git
+[submodule "dxvk"]
+	path = dxvk
+	url = https://github.com/doitsujin/dxvk.git
+[submodule "vkd3d-proton"]
+	path = vkd3d-proton
+	url = https://github.com/HansKristian-Work/vkd3d-proton.git
